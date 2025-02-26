@@ -26,7 +26,7 @@ function get_best_link(A: Array<string>, end: string) {
     if(A.includes(end)) {
         return end;
     }
-    const i = Math.floor(Math.random() * A.length)
+    const i = Math.floor(Math.random() * A.length);
     return A[i];
 }
 
@@ -61,11 +61,19 @@ async function main(S: string, E: string) {
         }
         console.log("");
         console.log("PATH "+ (6-i));
-        console.log("---------")
+        console.log("---------");
         current = await traverse(S, E, 5);
         console.log("Finished branch");
         i = i - 1;
     }
     console.log("Found path from " + S + " to " + E);
 }
-main("The Great Wall of China", "Bluetooth");
+//main("The Great Wall of China", "Bluetooth");
+//main("Helium", "Ivy League");
+//main("Cricket", "Major film studio");
+async function hej(){
+    const a = await wiki.page("Bluetooth");
+    
+    console.log(a);
+}
+hej();
