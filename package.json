@@ -9,6 +9,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "csv": "^6.3.11",
     "wikipedia": "^2.1.2"
   },
   "devDependencies": {
