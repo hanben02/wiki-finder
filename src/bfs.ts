@@ -21,6 +21,10 @@ function simpleHash(str: string): number {
  */
 export async function bfs_wiki(initial: string, end: string): Promise<List<string>> {
 
+    if(!(await is_valid_page(initial)) || !(await is_valid_page(end))) {
+        console.log("Start or end page could not be found");
+        return list();
+    }
     const pending = empty<string>(); //Queue of pages to process
     const parents = ph_empty<string, string>(250000, simpleHash); //hashtable of parents
 
