@@ -1,7 +1,7 @@
-import { filter, for_each, list, List, pair } from "./list";
+import { filter, for_each, head, is_null, list, List, pair, tail } from "./list";
 import { empty, enqueue, head as qhead, is_empty, dequeue } from "./queue_array";
 import { ph_empty, ph_insert, ph_lookup } from "./hashtables"
-import { get_links, get_links_manual, get_page, is_valid_page } from "./wiki";
+import { get_links, get_links_manual, get_links_to, get_page, is_valid_page } from "./wiki";
 
 //Hash function for string, taken from PKD lecture 9A
 function simpleHash(str: string): number {
@@ -26,7 +26,13 @@ export async function bfs_wiki(initial: string, end: string): Promise<List<strin
     // }
     const pending = empty<string>(); //Queue of pages to process
     const parents = ph_empty<string, string>(250000, simpleHash); //hashtable of parents
+    const endings = ph_empty<string, boolean>(550, simpleHash); 
 
+    const end_links = await get_links_to(end);
+    end_links.forEach(x => ph_insert(endings, x, true));
+    if(ph_lookup(endings, initial) === true) {
+        return list(initial, end);
+    }
     //Visits a page by inserting it to the process queue and inserting its parent to hashtable
     function bfs_visit(parent: string): (current: string) => boolean {
         function helper(current: string) {
@@ -42,6 +48,9 @@ export async function bfs_wiki(initial: string, end: string): Promise<List<strin
     //Traces back and creates list of the found path
     function back_track(current: string | undefined): List<string> {
         let b: List<string  > = list();
+        if(current !== end) {
+            b = list(end);
+        }
         while(current !== initial) { //trace back to initial
             if(current !== undefined) {
                 b = pair(current, b);
@@ -69,7 +78,7 @@ export async function bfs_wiki(initial: string, end: string): Promise<List<strin
         let found = "";
         let exit = false;
         links.map((x) => {
-            if(x === end) {
+            if(ph_lookup(endings, x) === true || x === end) {
                 found = x;
             }
             if(ph_lookup(parents, x) === undefined) {
@@ -90,3 +99,29 @@ export async function bfs_wiki(initial: string, end: string): Promise<List<strin
     return list(); //no path was found
 }
 
+function list_to_path(ls: List<string>): string {
+    return is_null(ls) ? "" 
+                       : is_null(tail(ls))
+                       ? head(ls)
+                       : head(ls) + " -> " + list_to_path(tail(ls)); 
+}
+
+export async function wiki_search(start: string, end: string): Promise<string> {
+    if(start === end) {
+        return "Start and end is equal";
+    }
+    const links_from = await get_links_manual(start);
+    if(links_from.length === 0) {
+        return "Initial page is invalid or has no links";
+    }
+    const links_to = await get_links_to(end);
+    if(links_to.length === 0) {
+        return "End page is invalid or has no page linking to it";
+    }
+    const result = await bfs_wiki(start, end);
+    if(result === null) {
+        return "No page found";
+    } else {
+        return list_to_path(result);
+    }
+}

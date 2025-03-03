@@ -55,11 +55,61 @@ export async function get_page(page: string): Promise<Page | undefined> {
  * @param page - page title to get links from
  * @returns true if page exists, false otherwise
  */
-export async function is_valid_page(page: string) {
+export async function is_valid_page(page: string): Promise<boolean> {
     try {
         const a = await wiki.page(page, {autoSuggest: true});
         return true;
     } catch {
         return false;
+    }
+}
+
+
+/**
+ * Function to get up to 500 leading to a page by calling the wikipedia API
+ * @param page - page title to get links from
+ * @returns Array of links to page, the array is empty if 
+ *          no links exist or page does not exist
+ */
+export async function get_links_to(page: string) {
+    page = page.replace('&', "%26").replace('?', "%3f");
+    try {
+        const link = "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=linkshere&lhlimit=max&lhnamespace=0&origin=*&titles="+page;
+        const request = await fetch(link);
+        const data = await request.json();
+        const process: Array<{ns: number, title: string}> = data.query.pages[Object.keys(data.query.pages)[0]].linkshere;
+        const titles = process.map(x => x.title);
+        return titles;
+    } catch(error) {
+        console.log(error);
+        return Promise.resolve([]);
+    }
+}
+
+export async function get_link_text(from: string, page: string): Promise<string> {
+    const formatted = from.replace('&', "%26").replace('?', "%3f");
+    const link = "https://en.wikipedia.org/w/api.php?action=parse&prop=text&format=json&origin=*&page=" + formatted;
+    try {
+        const request = await fetch(link);
+        const data = await request.json();
+        const html: string = data.parse.text["*"];
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const links = doc.querySelectorAll('a[href^="/wiki/"]');
+        let result = page;
+        links.forEach(link => {
+            const title = link.getAttribute("title");
+            if(title === page) {
+                const text = link.textContent;
+                if(!(text === null)) {
+                    result = text;
+                }
+            }
+        })
+        console.log(result);
+        return result;
+
+    } catch {
+        return page;
     }
 }
