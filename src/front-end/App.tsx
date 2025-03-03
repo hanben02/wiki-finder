@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { bfs_wiki } from "../back-end/bfs";
 
 export default function App() {
   const [text1, setText1] = useState("");
@@ -16,17 +17,13 @@ export default function App() {
     }));
   };
 
-  const handleSubmit = () => {
-    const data = {
-      text1,
-      text2,
-      selectedOptions: Object.entries(checkboxes)
-        .filter(([_, v]) => v)
-        .map(([k]) => k),
-    };
-
-    console.log("Submitted Data:", data);
+  const handleSubmit = async () => {
+    const selectedOptions = Object.entries(checkboxes)
+      .filter(([_, v]) => v)
+      .map(([k]) => k);
     alert("Data submitted"); //Message to user
+    const result = await bfs_wiki(text1, text2);
+    alert(result);
   };
 
   return (
