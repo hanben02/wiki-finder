@@ -17,13 +17,21 @@ export default function App() {
     }));
   };
 
+  function is_error_message(msg: string): boolean {
+    return msg === "Start and end is equal"
+      || msg === "Initial page is invalid or has no links"
+      || msg === "End page is invalid or has no page linking to it"
+      || msg === "No path found";
+  }
+
   const handleSubmit = async () => {
-    const selectedOptions = Object.entries(checkboxes)
-      .filter(([_, v]) => v)
-      .map(([k]) => k);
     alert("Data submitted"); //Message to user
     const result = await wiki_search(text1, text2);
-    alert(result);
+    if (!is_error_message(result)){
+      alert("PATH FOUND:\n" + result);
+    } else {
+      alert(result);
+    }
   };
 
   return (

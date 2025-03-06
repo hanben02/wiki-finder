@@ -143,7 +143,7 @@ export async function wiki_search(start: string, end: string, timeout: number = 
         return "Timeout reached"
     }
     if(result === null) {
-        return "No page found";
+        return "No path found";
     } else {
         return list_to_path(result);
     }
