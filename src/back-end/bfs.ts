@@ -1,7 +1,7 @@
 import { filter, for_each, head, is_null, list, List, pair, tail } from "./list";
 import { empty, enqueue, head as qhead, is_empty, dequeue } from "./queue_array";
 import { ph_empty, ph_insert, ph_lookup } from "./hashtables"
-import { get_links, get_links_to } from "./wiki";
+import { get_links, get_links_to, is_valid_page } from "./wiki";
 
 //Hash function for string, taken from PKD lecture 9A
 function simpleHash(str: string): number {
@@ -19,16 +19,21 @@ function simpleHash(str: string): number {
  * @param end - Title to wikipedia page to look for
  * @returns list of a path from initial to end or an empty list if no path was found
  */
-export async function bfs_wiki(initial: string, end: string): Promise<List<string>> {
-    // if(!(await is_valid_page(initial)) || !(await is_valid_page(end))) {
-        // console.log("Start or end page could not be found");
-        // return list();
-    // }
+export async function bfs_wiki(initial: string, end: string,
+                               fetch_links: (page: string) => Promise<Array<string>>,
+                               fetch_back_links: (page: string, n: number) => Promise<Array<string>>): Promise<List<string>> 
+                               {
+    if((await fetch_links(initial)).length === 0 || ((await fetch_back_links(end, 1)).length === 0)) {
+        return list();
+    }
+    if(initial === end) {
+        return list(initial);
+    }
     const pending = empty<string>(); //Queue of pages to process
     const parents = ph_empty<string, string>(100000, simpleHash); //hashtable of parents
-    const endings = ph_empty<string, boolean>(5000, simpleHash); 
+    const endings = ph_empty<string, boolean>(10000, simpleHash); //hastable of back-links
 
-    const end_links = await get_links_to(end);
+    const end_links = await fetch_back_links(end, 5);
     end_links.forEach(x => ph_insert(endings, x, true));
     if(ph_lookup(endings, initial) === true) {
         return list(initial, end);
@@ -71,7 +76,7 @@ export async function bfs_wiki(initial: string, end: string): Promise<List<strin
         dequeue(pending);
 
         //Get all links of links of page and visit each of them
-        const links = await get_links(current);
+        const links = await fetch_links(current);
         if(links.length === 0) {
             continue;
         }
@@ -95,7 +100,6 @@ export async function bfs_wiki(initial: string, end: string): Promise<List<strin
             return back_track(found);
         }
     }
-    console.log("ran out of queue")
     return list(); //no path was found
 }
 
@@ -114,11 +118,11 @@ export async function wiki_search(start: string, end: string): Promise<string> {
     if(links_from.length === 0) {
         return "Initial page is invalid or has no links";
     }
-    const links_to = await get_links_to(end);
+    const links_to = await get_links_to(end, 1);
     if(links_to.length === 0) {
         return "End page is invalid or has no page linking to it";
     }
-    const result = await bfs_wiki(start, end);
+    const result = await bfs_wiki(start, end, get_links, get_links_to);
     if(result === null) {
         return "No page found";
     } else {
