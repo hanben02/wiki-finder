@@ -1,7 +1,7 @@
 import { filter, for_each, head, is_null, list, List, pair, tail } from "./list";
 import { empty, enqueue, head as qhead, is_empty, dequeue } from "./queue_array";
 import { ph_empty, ph_insert, ph_lookup } from "./hashtables"
-import { get_links, get_links_manual, get_links_to, get_page, is_valid_page } from "./wiki";
+import { get_links, get_links_to } from "./wiki";
 
 //Hash function for string, taken from PKD lecture 9A
 function simpleHash(str: string): number {
@@ -25,8 +25,8 @@ export async function bfs_wiki(initial: string, end: string): Promise<List<strin
         // return list();
     // }
     const pending = empty<string>(); //Queue of pages to process
-    const parents = ph_empty<string, string>(250000, simpleHash); //hashtable of parents
-    const endings = ph_empty<string, boolean>(550, simpleHash); 
+    const parents = ph_empty<string, string>(100000, simpleHash); //hashtable of parents
+    const endings = ph_empty<string, boolean>(5000, simpleHash); 
 
     const end_links = await get_links_to(end);
     end_links.forEach(x => ph_insert(endings, x, true));
@@ -71,13 +71,13 @@ export async function bfs_wiki(initial: string, end: string): Promise<List<strin
         dequeue(pending);
 
         //Get all links of links of page and visit each of them
-        const links = await get_links_manual(current);
+        const links = await get_links(current);
         if(links.length === 0) {
             continue;
         }
         let found = "";
         let exit = false;
-        links.map((x) => {
+        links.map((x: string) => {
             if(ph_lookup(endings, x) === true || x === end) {
                 found = x;
             }
@@ -110,7 +110,7 @@ export async function wiki_search(start: string, end: string): Promise<string> {
     if(start === end) {
         return "Start and end is equal";
     }
-    const links_from = await get_links_manual(start);
+    const links_from = await get_links(start);
     if(links_from.length === 0) {
         return "Initial page is invalid or has no links";
     }
