@@ -1,5 +1,5 @@
 import { useState } from "react";
-import wiki_finder from "../back-end/main";
+import { wiki_search } from "../back-end/bfs";
 
 export default function App() {
   const [text1, setText1] = useState("");
@@ -22,8 +22,8 @@ export default function App() {
       .filter(([_, v]) => v)
       .map(([k]) => k);
     alert("Data submitted"); //Message to user
-    const result = await wiki_finder(text1, text2, selectedOptions);
-    alert("PATH FOUND:\n" + result);
+    const result = await wiki_search(text1, text2);
+    alert(result);
   };
 
   return (

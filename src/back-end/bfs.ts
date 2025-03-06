@@ -1,10 +1,10 @@
-import { filter, for_each, head, is_null, list, List, pair, tail } from "./list";
+import { head, is_null, list, List, pair, tail } from "./list";
 import { empty, enqueue, head as qhead, is_empty, dequeue } from "./queue_array";
-import { ph_empty, ph_insert, ph_lookup } from "./hashtables"
-import { get_links, get_links_to, is_valid_page } from "./wiki";
+import { ph_empty, ph_insert, ph_lookup, ProbingHashtable } from "./hashtables"
+import { get_links, get_links_to } from "./wiki";
 
 //Hash function for string, taken from PKD lecture 9A
-function simpleHash(str: string): number {
+export function simpleHash(str: string): number {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
         hash = hash * 31 + str.charCodeAt(i);
@@ -20,22 +20,18 @@ function simpleHash(str: string): number {
  * @returns list of a path from initial to end or an empty list if no path was found
  */
 export async function bfs_wiki(initial: string, end: string,
-                               fetch_links: (page: string) => Promise<Array<string>>,
-                               fetch_back_links: (page: string, n: number) => Promise<Array<string>>): Promise<List<string>> 
-                               {
-    if((await fetch_links(initial)).length === 0 || ((await fetch_back_links(end, 1)).length === 0)) {
-        return list();
-    }
+                               fetch_links: (page: string) => Promise<Array<string>> = get_links,
+                               fetch_back_links: (page: string, n: number) => Promise<ProbingHashtable<string, boolean> | null> = get_links_to): Promise<List<string>> {
     if(initial === end) {
         return list(initial);
     }
     const pending = empty<string>(); //Queue of pages to process
     const parents = ph_empty<string, string>(100000, simpleHash); //hashtable of parents
-    const endings = ph_empty<string, boolean>(10000, simpleHash); //hastable of back-links
-
-    const end_links = await fetch_back_links(end, 5);
-    end_links.forEach(x => ph_insert(endings, x, true));
-    if(ph_lookup(endings, initial) === true) {
+    const end_links = await fetch_back_links(end, 1);
+    if(end_links === null) {
+        return list();
+    }
+    if(ph_lookup(end_links, initial) === true) {
         return list(initial, end);
     }
     //Visits a page by inserting it to the process queue and inserting its parent to hashtable
@@ -83,7 +79,7 @@ export async function bfs_wiki(initial: string, end: string,
         let found = "";
         let exit = false;
         links.map((x: string) => {
-            if(ph_lookup(endings, x) === true || x === end) {
+            if(ph_lookup(end_links, x) === true || x === end) {
                 found = x;
             }
             if(ph_lookup(parents, x) === undefined) {
@@ -93,16 +89,18 @@ export async function bfs_wiki(initial: string, end: string,
             }
         })
         if(exit) {
-            console.log("ht full");
+            //no more space in ht
             return list();
         }
         if(found !== "") {
+            //end page found
             return back_track(found);
         }
     }
     return list(); //no path was found
 }
 
+//Creates a path string from a list of strings
 function list_to_path(ls: List<string>): string {
     return is_null(ls) ? "" 
                        : is_null(tail(ls))
@@ -119,7 +117,7 @@ export async function wiki_search(start: string, end: string): Promise<string> {
         return "Initial page is invalid or has no links";
     }
     const links_to = await get_links_to(end, 1);
-    if(links_to.length === 0) {
+    if(links_to === null) {
         return "End page is invalid or has no page linking to it";
     }
     const result = await bfs_wiki(start, end, get_links, get_links_to);
