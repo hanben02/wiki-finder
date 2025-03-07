@@ -38,6 +38,11 @@ export default function App() {
   }
 
   const handleSubmit = async () => {
+    if (isProcessing) {
+      // Prevent multiple requests from being processed in parallel
+      alert("Another request of yours is already being processed right now!")
+      return;
+    }
     alert("Data submitted"); //Message to user
     isProcessing = true;
     startProcessingText();
