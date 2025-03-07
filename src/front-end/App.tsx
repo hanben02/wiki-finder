@@ -9,6 +9,18 @@ export default function App() {
     option2: false,
     option3: false,
   });
+  const [processingText, setProcessingText] = useState("");
+  let isProcessing = false;
+
+  function startProcessingText(): void{
+    setProcessingText("Processing request...");
+  }
+
+  const waitBeforeDoneFade = 3000;
+  function stopProcessingText(): void{
+    setProcessingText("Done!");
+    setTimeout(() => setProcessingText(""), waitBeforeDoneFade);
+  }
 
   const handleCheckboxChange = (key: string) => {
     setCheckboxes((prev) => ({
@@ -27,7 +39,11 @@ export default function App() {
 
   const handleSubmit = async () => {
     alert("Data submitted"); //Message to user
+    isProcessing = true;
+    startProcessingText();
     const result = await wiki_search(text1, text2);
+    isProcessing = false;
+    stopProcessingText();
     if (!is_error_message(result)){
       alert("PATH FOUND:\n" + result);
     } else {
@@ -78,12 +94,13 @@ export default function App() {
         </p>
       </div>
       </div>
-      <button
+      <button id="submit"
         onClick={handleSubmit}
         className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600" //className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
       >
         Start program
       </button>
+      <p>{processingText}</p>
     </div>
   );
 }
