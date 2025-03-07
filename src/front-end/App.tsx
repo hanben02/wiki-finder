@@ -4,11 +4,6 @@ import { wiki_search } from "../back-end/bfs";
 export default function App() {
   const [text1, setText1] = useState("");
   const [text2, setText2] = useState("");
-  const [checkboxes, setCheckboxes] = useState({
-    option1: false,
-    option2: false,
-    option3: false,
-  });
   const [processingText, setProcessingText] = useState("");
   let isProcessing = false;
 
@@ -21,13 +16,6 @@ export default function App() {
     setProcessingText("Done!");
     setTimeout(() => setProcessingText(""), waitBeforeDoneFade);
   }
-
-  const handleCheckboxChange = (key: string) => {
-    setCheckboxes((prev) => ({
-      ...prev,
-      [key]: !prev[key as keyof typeof checkboxes],
-    }));
-  };
 
   function is_error_message(msg: string): boolean {
     return msg === "Start and end is equal"
@@ -74,29 +62,10 @@ export default function App() {
         className="border p-2 rounded w-full"
       />
       <div>
-        <h2 className="font-semibold">Select Options:</h2>
-        {Object.keys(checkboxes).map((key) => (
-          <label key={key} className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={checkboxes[key as keyof typeof checkboxes]}
-              onChange={() => handleCheckboxChange(key)}
-            />
-            {key}
-          </label>
-        ))}
-
       <div className="p-4 bg-gray-100 rounded w-full">
         <h2 className="font-semibold">Summary:</h2>
         <p>Start point: {text1}</p>
         <p>End point: {text2}</p>
-        <p>
-          Selected Options:{" "}
-          {Object.entries(checkboxes)
-            .filter(([_, v]) => v)
-            .map(([k]) => k)
-            .join(", ") || "None"}
-        </p>
       </div>
       </div>
       <button id="submit"
