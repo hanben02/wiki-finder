@@ -1,6 +1,6 @@
-import { bfs_wiki } from "./bfs";
-import { head, is_null, length, List, tail } from "./list";
-import { is_valid_page } from "./wiki";
+import { bfs_wiki } from "../back-end/bfs";
+import { head, is_null, length, List, tail } from "../back-end/list";
+import { is_valid_page } from "../back-end/wiki";
 
 
 //array with 48 test cases
@@ -59,7 +59,7 @@ const test_cases: Array<[string, string]> = [
  * Runs test cases by finding paths between several pages from an array and printing some statistics to the terminal. 
  * @param arr - Array containing tuples with strings that represent page title of start and end of paths to find, by default set to an array with 48 test cases
  */
-export async function run_timed_tests(arr: Array<[string, string]> = test_cases): Promise<void> {
+async function run_timed_tests(arr: Array<[string, string]> = test_cases): Promise<void> {
     let amnt_completed_tests = 0;
     let amnt_timedout_tests = 0;
     let accumulated_time = 0;
@@ -78,17 +78,20 @@ export async function run_timed_tests(arr: Array<[string, string]> = test_cases)
             a = await run_test(first, second, bfs_wiki);
         } catch {
             const end_time = performance.now();
-            console.log("Did not find path in " + ((end_time - start_time)/1000) + " seconds:\n");
+            console.log("Did not find path in 30 seconds:\n");
             accumulated_time = accumulated_time + (end_time - start_time);
             amnt_timedout_tests = amnt_timedout_tests + 1;
             continue;
         }
         const end_time = performance.now();
-        console.log("Found in " + ((end_time-start_time)/1000) + " seconds:\n" + display_list(a));
+        if(a === null) {
+            //some error
+            continue;
+        }
+        console.log("Found in " + ((end_time-start_time)/1000) + " seconds:\n" + display_list(a) + "\n");
         accumulated_time = accumulated_time + (end_time - start_time);
         amnt_completed_tests = amnt_completed_tests + 1;
         accumulated_path_len = accumulated_path_len + length(a);
-
     }
     const avg_total_time = (accumulated_time / (amnt_timedout_tests + amnt_completed_tests)) / 1000;
     const avg_time_completed = ((accumulated_time - 30000 * amnt_timedout_tests) / amnt_completed_tests) / 1000;
@@ -97,7 +100,7 @@ export async function run_timed_tests(arr: Array<[string, string]> = test_cases)
     console.log("Average total time: " + avg_total_time);
     console.log("Average time for completed tests: " + avg_time_completed);
     console.log("Average length of paths found: " + avg_len);
-
+    return;
 }
 
 //Display a list of strings as a string
@@ -111,7 +114,7 @@ function display_list(l: List<string>): string {
         s = s + head(l) + ", ";
         l = tail(l);
     }
-    return s + + ")";
+    return s + ")";
 }
 
 //find a path between two test cases in 30 seconds

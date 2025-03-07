@@ -1,54 +1,26 @@
-# React + TypeScript + Vite
+# Wiki-finder
+Wiki finder is an application that finds paths between two articles. It is written in typescript and uses a react front-end.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Installation
+Before you can install the program you will need to install Node.js and typescript, then do the following:
 
-Currently, two official plugins are available:
+1. Download repository
+2. Run `npm install` inside the wiki-finder folder
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Usage 
+To run the program, run `npm run dev` inside the wiki-finder folder, this will open a up a browser running the program in localhost.
+To find a path between to pages, input the page titles to the start and end pages in the text boxes, and click the "Start program" button. 
+The program will then start finding a path, and when it finds a path it will give you a pop-up displaying it. If the program fails to find a path,
+it will give you a pop-up explaining what went wrong.
 
-## Expanding the ESLint configuration
+## Tests
+### Unit tests
+There are two files containing unit tests that test the main functionality of the program.
+To run all the unit tests, run `jest` inside the wiki-finder folder.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Timed tests
+There are tests that test how fast the program can find paths. There are 48 predefined start and end points that will run when you run the file.
+To run these, run `npx tsx src/tests/time_tests.ts` and the results will be printed in the terminal. Each test can run for maximum 30 seconds so,
+the whole program can take a while to run.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```

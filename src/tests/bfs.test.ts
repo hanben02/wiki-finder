@@ -1,6 +1,6 @@
-import { bfs_wiki, simpleHash } from "./bfs"
-import { ph_empty, ph_insert, ProbingHashtable } from "./hashtables";
-import { length, list } from "./list";
+import { bfs_wiki, simpleHash } from "../back-end/bfs"
+import { ph_empty, ph_insert, ProbingHashtable } from "../back-end/hashtables";
+import { list } from "../back-end/list";
 
 //function that returns a function that "mimics" getting links
 // from wikipedia API to use in BFS function to use with test graphs
@@ -13,11 +13,10 @@ const get_adjacent_nodes = (graph: Array<Array<string>>) =>
 //a page from wikipedia API to use in BFS function to use with test graphs
 const adjacent_nodes_to_ht = (graph: Array<Array<string>>) => ((s: string, _: number = 0) => {
     const ht: ProbingHashtable<string, boolean> = ph_empty(10, simpleHash);
-    let result = null
     if(parseInt(s) < graph.length && parseInt(s) >= 0) {
         graph[parseInt(s)].forEach((x: string) => ph_insert(ht, x, true))
     }
-    return Promise.resolve(result);
+    return Promise.resolve(ht);
 });
 test("Directly linked pages", async () => {
     const links = [["1", "2", "3"], ["3"], ["3"], []]; 

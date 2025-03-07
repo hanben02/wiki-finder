@@ -21,14 +21,14 @@ export function simpleHash(str: string): number {
  */
 export async function bfs_wiki(initial: string, end: string,
                                fetch_links: (page: string) => Promise<Array<string>> = get_links,
-                               fetch_back_links: (page: string, n: number) => Promise<ProbingHashtable<string, boolean> | null> = get_links_to): Promise<List<string>> {
+                               fetch_back_links: (page: string, n: number) => Promise<ProbingHashtable<string, boolean>> = get_links_to): Promise<List<string>> {
     if(initial === end) {
         return list(initial);
     }
     const pending = empty<string>(); //Queue of pages to process
     const parents = ph_empty<string, string>(100000, simpleHash); //hashtable of parents
     const end_links = await fetch_back_links(end, 1);
-    if(end_links === null) {
+    if(end_links.entries === 0) {
         return list();
     }
     if(ph_lookup(end_links, initial) === true) {
@@ -52,7 +52,8 @@ export async function bfs_wiki(initial: string, end: string,
         if(current !== end) {
             b = list(end);
         }
-        while(current !== initial) { //trace back to initial
+        while(current !== initial) {
+            //trace back to initial
             if(current !== undefined) {
                 b = pair(current, b);
                 current = ph_lookup(parents, current);
@@ -108,7 +109,16 @@ function list_to_path(ls: List<string>): string {
                        : head(ls) + " -> " + list_to_path(tail(ls)); 
 }
 
-export async function wiki_search(start: string, end: string): Promise<string> {
+/**
+ * Checks if a page is valid, then finds a path by calling bfs_wiki function
+ * and running it for a limited amount of time, and returning the result as a string
+ * @param start - wikipedia page title to search from
+ * @param end - wikipedia page title to find
+ * @param timeout - time to search for in milliseconds, default is 30 seconds 
+ * @returns - a string representing the found path, or some error message,
+ *            if failed
+ */
+export async function wiki_search(start: string, end: string, timeout: number = 30000): Promise<string> {
     if(start === end) {
         return "Start and end is equal";
     }
@@ -117,10 +127,21 @@ export async function wiki_search(start: string, end: string): Promise<string> {
         return "Initial page is invalid or has no links";
     }
     const links_to = await get_links_to(end, 1);
-    if(links_to === null) {
+    if(links_to.entries === 0) {
         return "End page is invalid or has no page linking to it";
     }
-    const result = await bfs_wiki(start, end, get_links, get_links_to);
+    let result: List<string>;
+    try {
+        result = await new Promise(async (resolve, reject) => {
+            setTimeout(() => {
+                reject("Timeout reached");
+            }, timeout);
+            resolve(await bfs_wiki(start, end));
+        });
+    }
+    catch {
+        return "Timeout reached"
+    }
     if(result === null) {
         return "No page found";
     } else {
