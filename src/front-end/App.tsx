@@ -21,7 +21,8 @@ export default function App() {
     return msg === "Start and end is equal"
       || msg === "Initial page is invalid or has no links"
       || msg === "End page is invalid or has no page linking to it"
-      || msg === "No path found";
+      || msg === "No path found"
+      || msg === "Timeout reached";
   }
 
   const handleSubmit = async () => {
