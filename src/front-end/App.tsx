@@ -40,20 +40,20 @@ export default function App() {
   const handleSubmit = async () => {
     if (isProcessing) {
       // Prevent multiple requests from being processed in parallel
-      alert("Another request of yours is already being processed right now!")
+      alert("Another request of yours is already being processed right now!");
       return;
     }
     alert("Data submitted"); //Message to user
     isProcessing = true;
     startProcessingText();
     const result = await wiki_search(text1, text2);
-    isProcessing = false;
-    stopProcessingText();
     if (!is_error_message(result)){
       alert("PATH FOUND:\n" + result);
     } else {
       alert(result);
     }
+    isProcessing = false;
+    stopProcessingText();
   };
 
   return (
