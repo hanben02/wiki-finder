@@ -1,6 +1,6 @@
-import { head, is_null, list, List, pair, tail } from "./list";
-import { empty, enqueue, head as qhead, is_empty, dequeue } from "./queue_array";
-import { ph_empty, ph_insert, ph_lookup, ProbingHashtable } from "./hashtables"
+import { head, is_null, list, List, pair, tail } from "./lib/list";
+import { empty, enqueue, head as qhead, is_empty, dequeue } from "./lib/queue_array";
+import { ph_empty, ph_insert, ph_lookup, ProbingHashtable } from "./lib/hashtables"
 import { get_links, get_links_to } from "./wiki";
 
 //Hash function for string, taken from PKD lecture 9A

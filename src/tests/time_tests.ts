@@ -1,5 +1,5 @@
 import { bfs_wiki } from "../back-end/bfs";
-import { head, is_null, length, List, tail } from "../back-end/list";
+import { head, is_null, length, List, tail } from "../back-end/lib/list";
 import { is_valid_page } from "../back-end/wiki";
 
 

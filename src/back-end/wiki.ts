@@ -1,5 +1,5 @@
 import { simpleHash } from "./bfs";
-import { ph_empty, ph_insert, ProbingHashtable } from "./hashtables";
+import { ph_empty, ph_insert, ProbingHashtable } from "./lib/hashtables";
 
 /**
  * Function to get up to 500 from a page by calling the wikipedia API

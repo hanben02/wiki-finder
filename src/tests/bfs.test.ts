@@ -1,6 +1,6 @@
-import { bfs_wiki, simpleHash } from "../back-end/bfs"
-import { ph_empty, ph_insert, ProbingHashtable } from "../back-end/hashtables";
-import { list } from "../back-end/list";
+import { bfs_wiki, simpleHash, wiki_search } from "../back-end/bfs"
+import { ph_empty, ph_insert, ProbingHashtable } from "../back-end/lib/hashtables";
+import { list } from "../back-end/lib/list";
 
 //function that returns a function that "mimics" getting links
 // from wikipedia API to use in BFS function to use with test graphs
@@ -77,4 +77,3 @@ test("Invalid pages", async () => {
                           adjacent_nodes_to_ht(backlinks)
     )).toBe(list());
 });
-

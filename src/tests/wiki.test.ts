@@ -51,3 +51,23 @@ test("Stops when runs out of links to fetch", async () => {
       //so the function stops after first call
       expect((await get_links_to("", 100)).entries).toBe(1);
 });
+
+test("Get links from page works correctly", async () => {
+  //This makes so when the fetch() function is called inside
+  //get_links it returns this fake response that looks like
+  //what the response would look like.
+  global.fetch = jest.fn(() =>
+      Promise.resolve({
+        json: () => Promise.resolve({
+          query: {
+            pages: {
+              "123": { links: [{ns: 0, title: "Page1"}, {ns: 0, title: "Page2"}] }
+            }
+          }
+        })
+      })
+    ) as jest.Mock;
+    
+    //This function is expected to just return an array of all titles in the response
+    expect((await get_links(""))).toStrictEqual(["Page1", "Page2"]);
+});
