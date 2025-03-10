@@ -4,26 +4,50 @@ import { wiki_search } from "../back-end/bfs";
 export default function App() {
   const [text1, setText1] = useState("");
   const [text2, setText2] = useState("");
-  const [checkboxes, setCheckboxes] = useState({
-    option1: false,
-    option2: false,
-    option3: false,
-  });
+  const [processingText, setProcessingText] = useState("");
+  const [isProcessing, setProcessing] = useState(false);
 
-  const handleCheckboxChange = (key: string) => {
-    setCheckboxes((prev) => ({
-      ...prev,
-      [key]: !prev[key as keyof typeof checkboxes],
-    }));
-  };
+  function startProcessingText(): void{
+    setProcessingText("Processing request...");
+  }
+
+  const waitBeforeDoneFade = 3000;
+  function stopProcessingText(): void{
+    setProcessingText("Done!");
+    setTimeout(() => setProcessingText(""), waitBeforeDoneFade);
+  }
+
+  function is_error_message(msg: string): boolean {
+    return msg === "Start and end is equal"
+      || msg === "Initial page is invalid or has no links"
+      || msg === "End page is invalid or has no page linking to it"
+      || msg === "No path found"
+      || msg === "Timeout reached";
+  }
+
+  function mw_capitalize(name: string){
+    const c0 = name.charAt(0);
+    const theRest = name.slice(1);
+    return c0.toUpperCase().concat(theRest);
+  }
 
   const handleSubmit = async () => {
-    const selectedOptions = Object.entries(checkboxes)
-      .filter(([_, v]) => v)
-      .map(([k]) => k);
+    if (isProcessing) {
+      // Prevent multiple requests from being processed in parallel
+      alert("Another request of yours is already being processed right now!");
+      return;
+    }
     alert("Data submitted"); //Message to user
-    const result = await wiki_search(text1, text2);
-    alert(result);
+    setProcessing(true);
+    startProcessingText();
+    const result = await wiki_search(mw_capitalize(text1), mw_capitalize(text2));
+    if (!is_error_message(result)){
+      alert("PATH FOUND:\n" + result);
+    } else {
+      alert(result);
+    }
+    setProcessing(false);
+    stopProcessingText();
   };
 
   return (
@@ -44,37 +68,19 @@ export default function App() {
         className="border p-2 rounded w-full"
       />
       <div>
-        <h2 className="font-semibold">Select Options:</h2>
-        {Object.keys(checkboxes).map((key) => (
-          <label key={key} className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={checkboxes[key as keyof typeof checkboxes]}
-              onChange={() => handleCheckboxChange(key)}
-            />
-            {key}
-          </label>
-        ))}
-
       <div className="p-4 bg-gray-100 rounded w-full">
         <h2 className="font-semibold">Summary:</h2>
         <p>Start point: {text1}</p>
         <p>End point: {text2}</p>
-        <p>
-          Selected Options:{" "}
-          {Object.entries(checkboxes)
-            .filter(([_, v]) => v)
-            .map(([k]) => k)
-            .join(", ") || "None"}
-        </p>
       </div>
       </div>
-      <button
+      <button id="submit"
         onClick={handleSubmit}
         className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600" //className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
       >
         Start program
       </button>
+      <p>{processingText}</p>
     </div>
   );
 }

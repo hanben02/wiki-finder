@@ -3,20 +3,31 @@ import { empty, enqueue, head as qhead, is_empty, dequeue } from "./lib/queue_ar
 import { ph_empty, ph_insert, ph_lookup, ProbingHashtable } from "./lib/hashtables"
 import { get_links, get_links_to } from "./wiki";
 
-//Hash function for string, taken from PKD lecture 9A
+/** 
+ * A simple deterministic hash function for strings.
+ * @copyright Modified version of a function from PKD lecture 9A.
+ * @param str the string to compute a hash of
+ * @returns a hash value of the given string
+ */
 export function simpleHash(str: string): number {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
-        hash = hash * 31 + str.charCodeAt(i);
+        // Constrain the hash value's growth
+        // to avoid long strings all hashing to 0
+        hash = (hash * 31 + str.charCodeAt(i)) % 2**45;
+        if (hash >= 2**44){
+            hash = hash - 2**45;
+        }
     }
-    return hash & hash;
+    return hash;
 }
 
 /**
  * Function that searches for a path between two wikipedia pages by BFS
  * The function is a modified version of the BFS implemented in PKD.
- * @param initial - Title to wikipedia page to look from
- * @param end - Title to wikipedia page to look for
+ * All page titles are assumed to be in mainspace.
+ * @param initial - Title of the Wikipedia page to start from
+ * @param end - Title of the Wikipedia page to search for a path to
  * @returns list of a path from initial to end or an empty list if no path was found
  */
 export async function bfs_wiki(initial: string, end: string,
@@ -25,8 +36,10 @@ export async function bfs_wiki(initial: string, end: string,
     if(initial === end) {
         return list(initial);
     }
-    const pending = empty<string>(); //Queue of pages to process
-    const parents = ph_empty<string, string>(100000, simpleHash); //hashtable of parents
+    // Queue of pages to process
+    const pending = empty<string>(); 
+    // Hashtable of parents
+    const parents = ph_empty<string, string>(100000, simpleHash);
     const end_links = await fetch_back_links(end, 1);
     if(end_links.entries === 0) {
         return list();
@@ -34,7 +47,8 @@ export async function bfs_wiki(initial: string, end: string,
     if(ph_lookup(end_links, initial) === true) {
         return list(initial, end);
     }
-    //Visits a page by inserting it to the process queue and inserting its parent to hashtable
+    // Visits a page by inserting it to the process queue
+    // and inserting its parent to the hashtable
     function bfs_visit(parent: string): (current: string) => boolean {
         function helper(current: string) {
             if(!ph_insert(parents, current, parent)){
@@ -46,14 +60,14 @@ export async function bfs_wiki(initial: string, end: string,
         return helper;
     }
 
-    //Traces back and creates list of the found path
+    // Traces back and creates list of the found path
     function back_track(current: string | undefined): List<string> {
         let b: List<string  > = list();
         if(current !== end) {
             b = list(end);
         }
         while(current !== initial) {
-            //trace back to initial
+            // Trace back to initial
             if(current !== undefined) {
                 b = pair(current, b);
                 current = ph_lookup(parents, current);
@@ -64,15 +78,15 @@ export async function bfs_wiki(initial: string, end: string,
         return pair(current, b);
     }
 
-    //visit initial node
+    // Visit the initial page
     bfs_visit("")(initial);
 
     while (!is_empty(pending)) {
-        // dequeue the first page of the queue
+        // Get and dequeue the first page of the queue
         const current = qhead(pending);
         dequeue(pending);
 
-        //Get all links of links of page and visit each of them
+        // Get all links from the page and visit each of them
         const links = await fetch_links(current);
         if(links.length === 0) {
             continue;
@@ -90,15 +104,15 @@ export async function bfs_wiki(initial: string, end: string,
             }
         })
         if(exit) {
-            //no more space in ht
+            // No more space in parents
             return list();
         }
         if(found !== "") {
-            //end page found
+            // end page found
             return back_track(found);
         }
     }
-    return list(); //no path was found
+    return list(); // No path was found
 }
 
 //Creates a path string from a list of strings
@@ -110,13 +124,15 @@ function list_to_path(ls: List<string>): string {
 }
 
 /**
- * Checks if a page is valid, then finds a path by calling bfs_wiki function
- * and running it for a limited amount of time, and returning the result as a string
- * @param start - wikipedia page title to search from
- * @param end - wikipedia page title to find
- * @param timeout - time to search for in milliseconds, default is 30 seconds 
+ * Checks if two pages are valid, then attempts to find a path
+ * from one to the other for a limited amount of time.
+ * All page titles are assumed to be in mainspace.
+ * @param start - Wikipedia page title to search from
+ * @param end - Wikipedia page title to find
+ * @param timeout - time to search for in milliseconds. Default is 30 seconds 
  * @returns - a string representing the found path, or some error message,
  *            if failed
+ * @see {@link bfs_wiki} for information on the algorithm used
  */
 export async function wiki_search(start: string, end: string, timeout: number = 30000): Promise<string> {
     if(start === end) {
@@ -143,7 +159,7 @@ export async function wiki_search(start: string, end: string, timeout: number = 
         return "Timeout reached"
     }
     if(result === null) {
-        return "No page found";
+        return "No path found";
     } else {
         return list_to_path(result);
     }
