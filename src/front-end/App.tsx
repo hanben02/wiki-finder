@@ -5,7 +5,7 @@ export default function App() {
   const [text1, setText1] = useState("");
   const [text2, setText2] = useState("");
   const [processingText, setProcessingText] = useState("");
-  let isProcessing = false;
+  const [isProcessing, setProcessing] = useState(false);
 
   function startProcessingText(): void{
     setProcessingText("Processing request...");
@@ -32,7 +32,7 @@ export default function App() {
       return;
     }
     alert("Data submitted"); //Message to user
-    isProcessing = true;
+    setProcessing(true);
     startProcessingText();
     const result = await wiki_search(text1, text2);
     if (!is_error_message(result)){
@@ -40,7 +40,7 @@ export default function App() {
     } else {
       alert(result);
     }
-    isProcessing = false;
+    setProcessing(false);
     stopProcessingText();
   };
 
