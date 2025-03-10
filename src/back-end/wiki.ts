@@ -2,10 +2,11 @@ import { simpleHash } from "./bfs";
 import { ph_empty, ph_insert, ProbingHashtable } from "./hashtables";
 
 /**
- * Function to get up to 500 from a page by calling the wikipedia API
+ * Get up to 500 outgoing links from a Wikipedia page
+ * by calling the MediaWiki API
  * @param page - page title to get links from
- * @returns Array of links of page, the array is empty if 
- *          no links exist or page does not exist
+ * @returns an array of links from the page, or an empty array if 
+ *          no links exist or the page does not exist
  */
 export async function get_links(page: string): Promise<Array<string>> {
     page = page.replace('&', "%26").replace('?', "%3f");
@@ -25,19 +26,21 @@ export async function get_links(page: string): Promise<Array<string>> {
 
 
 /**
- * Function to get links to a page by calling the wikipedia API,
- * number of maximum api calls can be changed
- * @precondition - n >= 1
- * @param page - page title to get links from
- * @param n - number of maximum api requests to make,
- *            each request giving a maximum of 500 links,
- *            function will fetch links n times or until every link
- *            has been fetched.
- * @returns Hashtable of page titles of links as keys, and a boolean as value (which is always true)
+ * Get up to a given number of links to a Wikipedia page
+ * (so-called <i>backlinks</i>) by calling the MediaWiki API.
+ * Backlinks are fetched in batches of 500.
+ * @precondition n >= 1
+ * @param page page title to get links from
+ * @param n maximum number of API requests to make
+ * (maximum number of batches of backlinks)
+ * @returns a hashtable of page titles of links as keys,
+ * and a boolean as value (which is always true)
  */
-export async function get_links_to(page: string, n: number): Promise<ProbingHashtable<string,boolean>> {
+export async function get_links_to(page: string, n: number): Promise<ProbingHashtable<string, true>> {
+    // '&' and '?' are allowed in page titles,
+    // but they interfere with HTTP request URLs and must be escaped
     page = page.replace('&', "%26").replace('?', "%3f");
-    const result: ProbingHashtable<string, boolean> = ph_empty(500*n, simpleHash);
+    const result: ProbingHashtable<string, true> = ph_empty(500*n, simpleHash);
     try {
         const link = "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=linkshere&lhlimit=max&lhnamespace=0&origin=*&titles="+page;
         const request = await fetch(link);
@@ -71,9 +74,13 @@ export async function get_links_to(page: string, n: number): Promise<ProbingHash
     }
 }
 /**
- * Checks if a wikipedia page is valid by calling the API
+ * Checks if a wikipedia page has outgoing links by calling the API.
+ * Invalid and nonexistent page titles are treated as not having links.
+ * @example
+ * await is_valid_page("Ginger"); // true
+ * await is_valid_page("[0]") // false, as '[' and ']' are invalid in titles
  * @param page - page title to check
- * @returns True if page is valid, false otherwise
+ * @returns whether the page has outgoing links
  */
 export async function is_valid_page(page: string): Promise<boolean> {
     try {
