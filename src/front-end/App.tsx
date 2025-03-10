@@ -25,6 +25,12 @@ export default function App() {
       || msg === "Timeout reached";
   }
 
+  function mw_capitalize(name: string){
+    const c0 = name.charAt(0);
+    const theRest = name.slice(1);
+    return c0.toUpperCase().concat(theRest);
+  }
+
   const handleSubmit = async () => {
     if (isProcessing) {
       // Prevent multiple requests from being processed in parallel
@@ -34,7 +40,7 @@ export default function App() {
     alert("Data submitted"); //Message to user
     setProcessing(true);
     startProcessingText();
-    const result = await wiki_search(text1, text2);
+    const result = await wiki_search(mw_capitalize(text1), mw_capitalize(text2));
     if (!is_error_message(result)){
       alert("PATH FOUND:\n" + result);
     } else {
