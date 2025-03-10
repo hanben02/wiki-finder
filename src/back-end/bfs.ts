@@ -5,16 +5,21 @@ import { get_links, get_links_to } from "./wiki";
 
 /** 
  * A simple deterministic hash function for strings.
- * @copyright Taken from PKD lecture 9A.
+ * @copyright Modified version of a function from PKD lecture 9A.
  * @param str the string to compute a hash of
  * @returns a hash value of the given string
  */
 export function simpleHash(str: string): number {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
-        hash = hash * 31 + str.charCodeAt(i);
+        // Constrain the hash value's growth
+        // to avoid long strings all hashing to 0
+        hash = (hash * 31 + str.charCodeAt(i)) % 2**45;
+        if (hash >= 2**44){
+            hash = hash - 2**45;
+        }
     }
-    return hash & hash;
+    return hash;
 }
 
 /**
