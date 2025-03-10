@@ -53,6 +53,9 @@ export default function App() {
   return (
     <div className="flex flex-col gap-4 p-4 max-w-md mx-auto text-center items-center min-h-screen justify-center">
       <h1 className="text-xl font-bold">Wiki Finder</h1>
+      <h3 className="text-xl font-bold">How does this work?</h3>
+      <h4 className="text-xl">By inputting the name of the wikipedia page in the start and endpoint, this program can calculate a path between them. This path
+        is the path you would have to go if the only thing you were allowed to do was use the links present in the current wikipedia page, and your job was to go from one page to the next. </h4>
       <input
         type="text"
         placeholder="Start point"
