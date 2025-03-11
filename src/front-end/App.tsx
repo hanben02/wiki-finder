@@ -80,7 +80,7 @@ export default function App() {
       </div>
       <button id="submit"
         onClick={handleSubmit}
-        className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600" //className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-pink-600"
       >
         Start program
       </button>
