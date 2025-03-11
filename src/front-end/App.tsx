@@ -40,7 +40,8 @@ export default function App() {
     alert("Data submitted"); //Message to user
     setProcessing(true);
     startProcessingText();
-    const result = await wiki_search(mw_capitalize(text1), mw_capitalize(text2));
+    const result = await wiki_search(mw_capitalize(text1),
+      mw_capitalize(text2));
     if (!is_error_message(result)){
       alert("PATH FOUND:\n" + result);
     } else {
