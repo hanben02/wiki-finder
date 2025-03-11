@@ -52,11 +52,24 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 max-w-md mx-auto text-center items-center min-h-screen justify-center">
+    <div className="flex flex-col gap-4 p-4 max-w-md mx-auto text-center
+    items-center min-h-screen justify-center">
       <h1 className="text-xl font-bold">Wiki Finder</h1>
-      <h3 className="text-xl font-bold">How does this work?</h3>
-      <h4 className="text-xl">By inputting the name of the wikipedia page in the start and endpoint, this program can calculate a path between them. This path
-        is the path you would have to go if the only thing you were allowed to do was use the links present in the current wikipedia page, and your job was to go from one page to the next. </h4>
+      <h2 className="text-xl font-bold">How does this work?</h2>
+      <p className="text-xl">
+        After inputting the names (titles) of the start and end pages
+        on the English Wikipedia in the text boxes below, you can run this 
+        program to calculate a path from the start page to the end page.
+        The result is a path you could take from the start page to the end page
+        if the only thing you were allowed to do was to use the links
+        present on each Wikipedia page.
+      </p>
+      <p className="text-xl font-bold">
+        While the program makes a reasonable attempt to produce as short
+        of a path as possible, the algorithm cannot guarantee that the
+        path it gives is the shortest.
+      </p>
+      <h2 className="text-xl">Inputs</h2>
       <input
         type="text"
         placeholder="Start point"
@@ -80,7 +93,8 @@ export default function App() {
       </div>
       <button id="submit"
         onClick={handleSubmit}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-pink-600"
+        className="bg-blue-500 text-white px-4 py-2 rounded
+        hover:bg-pink-600"
       >
         Start program
       </button>
