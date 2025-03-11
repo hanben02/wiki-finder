@@ -14,9 +14,9 @@ export function simpleHash(str: string): number {
     for (let i = 0; i < str.length; i++) {
         // Constrain the hash value's growth
         // to avoid long strings all hashing to 0
-        hash = (hash * 31 + str.charCodeAt(i)) % 2**45;
-        if (hash >= 2**44){
-            hash = hash - 2**45;
+        hash = (hash * 31 + str.charCodeAt(i)) % 2 ** 45;
+        if (hash >= 2 ** 44){
+            hash -= 2 ** 45;
         }
     }
     return hash;
@@ -28,11 +28,14 @@ export function simpleHash(str: string): number {
  * All page titles are assumed to be in mainspace.
  * @param initial - Title of the Wikipedia page to start from
  * @param end - Title of the Wikipedia page to search for a path to
- * @returns list of a path from initial to end or an empty list if no path was found
+ * @returns list of a path from initial to end
+ * or an empty list if no path was found
  */
 export async function bfs_wiki(initial: string, end: string,
-                               fetch_links: (page: string) => Promise<Array<string>> = get_links,
-                               fetch_back_links: (page: string, n: number) => Promise<ProbingHashtable<string, boolean>> = get_links_to): Promise<List<string>> {
+    fetch_links: (page: string) => Promise<Array<string>> = get_links,
+    fetch_back_links: (page: string, n: number) => 
+        Promise<ProbingHashtable<string, boolean>> 
+    = get_links_to): Promise<List<string>> {
     if(initial === end) {
         return list(initial);
     }
@@ -127,14 +130,20 @@ function list_to_path(ls: List<string>): string {
  * Checks if two pages are valid, then attempts to find a path
  * from one to the other for a limited amount of time.
  * All page titles are assumed to be in mainspace.
- * @param start - Wikipedia page title to search from
- * @param end - Wikipedia page title to find
- * @param timeout - time to search for in milliseconds. Default is 30 seconds 
- * @returns - a string representing the found path, or some error message,
- *            if failed
+ * @param start Wikipedia page title to search from
+ * @param end Wikipedia page title to find
+ * @param timeout time to search for in milliseconds.
+ * The default value for this time is 30000 (representing 30 seconds).
+ * @returns a string representing the found path
+ * or some error message string if the search failed.
+ * The possible error strings are "Start and end is equal",
+ * "Initial page is invalid or has no links",
+ * "End page is invalid or has no page linking to it",
+ * "Timeout reached", and "No path found".
  * @see {@link bfs_wiki} for information on the algorithm used
  */
-export async function wiki_search(start: string, end: string, timeout: number = 30000): Promise<string> {
+export async function wiki_search(start: string, end: string,
+    timeout: number = 30000): Promise<string> {
     if(start === end) {
         return "Start and end is equal";
     }

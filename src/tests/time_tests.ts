@@ -56,8 +56,11 @@ const test_cases: Array<[string, string]> = [
   ];
   
 /**
- * Runs test cases by finding paths between several pages from an array and printing some statistics to the terminal. 
- * @param arr - Array containing tuples with strings that represent page title of start and end of paths to find, by default set to an array with 48 test cases
+ * Runs test cases by finding paths between several pages
+ * from an array and logs statistics to the console. 
+ * @param arr an array containing tuples with strings
+ * that represent the page title of start and end of paths to find,
+ * by default set to an array with 48 test cases
  */
 async function run_timed_tests(arr: Array<[string, string]> = test_cases): Promise<void> {
     let amnt_completed_tests = 0;
@@ -73,7 +76,7 @@ async function run_timed_tests(arr: Array<[string, string]> = test_cases): Promi
             continue;
         }
         const start_time = performance.now();
-        let a;
+        let a: List<string>;
         try {
             a = await run_test(first, second, bfs_wiki);
         } catch {
@@ -85,25 +88,32 @@ async function run_timed_tests(arr: Array<[string, string]> = test_cases): Promi
         }
         const end_time = performance.now();
         if(a === null) {
-            //some error
+            // Some error occurred that did not cause the promise to be rejected
             continue;
         }
-        console.log("Found in " + ((end_time-start_time)/1000) + " seconds:\n" + display_list(a) + "\n");
+        console.log("Found in " + ((end_time-start_time)/1000)
+            + " seconds:\n" + display_list(a) + "\n");
         accumulated_time = accumulated_time + (end_time - start_time);
         amnt_completed_tests = amnt_completed_tests + 1;
         accumulated_path_len = accumulated_path_len + length(a);
     }
-    const avg_total_time = (accumulated_time / (amnt_timedout_tests + amnt_completed_tests)) / 1000;
-    const avg_time_completed = ((accumulated_time - 30000 * amnt_timedout_tests) / amnt_completed_tests) / 1000;
+    const avg_total_time =
+        (accumulated_time / (amnt_timedout_tests + amnt_completed_tests))
+        / 1000;
+    const avg_time_completed =
+        ((accumulated_time - 30000 * amnt_timedout_tests)
+            / amnt_completed_tests) / 1000;
     const avg_len = accumulated_path_len / amnt_completed_tests;
-    console.log("Did " + (amnt_completed_tests + amnt_timedout_tests) + " and completed " + amnt_completed_tests + " and timed out " + amnt_timedout_tests);
+    console.log("Did " + (amnt_completed_tests + amnt_timedout_tests)
+        + " and completed " + amnt_completed_tests
+        + " and timed out " + amnt_timedout_tests);
     console.log("Average total time: " + avg_total_time);
     console.log("Average time for completed tests: " + avg_time_completed);
     console.log("Average length of paths found: " + avg_len);
     return;
 }
 
-//Display a list of strings as a string
+// Display a list of strings as a string
 function display_list(l: List<string>): string {
     let s = "list(";
     while(!is_null(l)){
@@ -117,8 +127,11 @@ function display_list(l: List<string>): string {
     return s + ")";
 }
 
-//find a path between two test cases in 30 seconds
-async function run_test(start: string, end: string, fun: (a: string, b:string)=>Promise<List<string>>): Promise<List<string>> {
+// Constrain the running time of an async function, such as a search,
+// within 30 seconds (for testing purposes)
+async function run_test(start: string, end: string,
+    fun: (a: string, b:string) => Promise<List<string>>):
+    Promise<List<string>> {
     return new Promise(async (resolve, reject) => {
         setTimeout(() => {
             reject("Timeout reached");
@@ -126,3 +139,5 @@ async function run_test(start: string, end: string, fun: (a: string, b:string)=>
         resolve(await fun(start, end));
     });
 }
+
+run_timed_tests();
