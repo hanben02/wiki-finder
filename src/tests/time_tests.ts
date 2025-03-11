@@ -105,11 +105,13 @@ async function run_timed_tests(arr: Array<[string, string]> = test_cases): Promi
             / amnt_completed_tests) / 1000;
     const avg_len = accumulated_path_len / amnt_completed_tests;
     console.log("Did " + (amnt_completed_tests + amnt_timedout_tests)
-        + " and completed " + amnt_completed_tests
-        + " and timed out " + amnt_timedout_tests);
-    console.log("Average total time: " + avg_total_time);
-    console.log("Average time for completed tests: " + avg_time_completed);
-    console.log("Average length of paths found: " + avg_len);
+        + "tests, with " + amnt_completed_tests
+        + "successful and " + amnt_timedout_tests + "timed out");
+    console.log("Average total search time for all tests: "
+        + avg_total_time + " s");
+    console.log("Average search time for successful tests: "
+        + avg_time_completed + " s");
+    console.log("Average length of paths found: " + avg_len + " pages");
     return;
 }
 
