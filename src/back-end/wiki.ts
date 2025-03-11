@@ -1,5 +1,5 @@
 import { simpleHash } from "./bfs";
-import { ph_empty, ph_insert, ProbingHashtable } from "./hashtables";
+import { ph_empty, ph_insert, ProbingHashtable } from "./lib/hashtables";
 
 /**
  * Get up to 500 outgoing links from a Wikipedia page
