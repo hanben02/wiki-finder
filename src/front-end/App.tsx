@@ -4,7 +4,7 @@ import { wiki_search } from "../back-end/bfs";
 export default function App() {
   const [text1, setText1] = useState("");
   const [text2, setText2] = useState("");
-  const [processingText, setProcessingText] = useState("");
+  const [processingText, setProcessingText] = useState("No request active");
   const [isProcessing, setProcessing] = useState(false);
 
   function startProcessingText(): void{
@@ -14,7 +14,7 @@ export default function App() {
   const waitBeforeDoneFade = 3000;
   function stopProcessingText(): void{
     setProcessingText("Done!");
-    setTimeout(() => setProcessingText(""), waitBeforeDoneFade);
+    setTimeout(() => setProcessingText("No request active"), waitBeforeDoneFade);
   }
 
   function is_error_message(msg: string): boolean {
@@ -86,11 +86,12 @@ export default function App() {
       />
       <div>
       <div className="p-4 bg-gray-100 rounded w-full">
-        <h2 className="font-semibold">Summary:</h2>
+        <h2 className="font-semibold">Summary</h2>
         <p>Start point: {text1}</p>
         <p>End point: {text2}</p>
       </div>
       </div>
+      <h2>Run program</h2>
       <button id="submit"
         onClick={handleSubmit}
         className="bg-blue-500 text-white px-4 py-2 rounded
@@ -98,6 +99,7 @@ export default function App() {
       >
         Start program
       </button>
+      <h2>Status</h2>
       <p>{processingText}</p>
     </div>
   );
